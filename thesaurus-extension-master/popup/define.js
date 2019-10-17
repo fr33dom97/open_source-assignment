@@ -7,27 +7,37 @@
     * e.g. formatResponse, getDefinition
     * This should be improved.
     */
+   
     function formatResponse(result) {
         var resultHtml = "",
             definitions;
         var googleQuery, searchMore;
-
+        
         resultHtml += "<b>" + result.searchText + "</b>&nbsp";
         if (result.pronounciation) {
             resultHtml += result.pronounciation;
+           
         }
         resultHtml +=
-            '<a id="closeBtnEPD" style="float:right;padding:2px 5px;color:grey">X</i></a><br/><br/>';
+            '<span class="fa fa-microphone" id="text_speech" aria-hidden="true";"style="font-size:20px"></span><a id="closeBtnEPD" style="float:right;padding:2px 5px;">X</a><br/><br/>';
+       
 
         definitions = result.definitions + "<br />";
-
+         
         googleQuery = queryPrefix + result.searchText;
         searchMore =
             "<br/><a href='" +
             googleQuery +
             "'style='float:left; color:#1a0dab' target='_blank'>More</a>";
         resultHtml += definitions + searchMore;
-
+     
+         
+       
+        
+       
+         
+        
+        
         return resultHtml;
     }
 
@@ -47,28 +57,48 @@
             definitions: "",
             pronounciation: "",
             status: "",
+            name:"",
+         
         };
 
         $.when($.getJSON(definitionApi))
             .then(function(data) {
                 result.pronounciation = data[0].phonetic;
                 var definition = "";
+                var name ="";
                 if(data[0] && data[0].meaning){
                     var meanings = data[0].meaning;
                     var index = 1;
                     for(var meaning in meanings){
                         if(meanings.hasOwnProperty(meaning)){
                             definition += index+ ". (" + meaning + ") "+meanings[meaning][0].definition;
+                            name += meanings[meaning][0].definition + " ";
+                             
+                              
+                          
                             if(index != Object.keys(meanings).length){
                                 definition += "<br />";
+                              
+
                             }
+                       
                         }
+                         
                         index++;
                     }
                     result.status = "success";
                     result.definitions = definition;
-
+                    result.name = name;
+                    
+                    
                 }
+               
+              $(document).on('click','#text_speech',function(){
+                                    var voice = result.name;
+                                    var msg = new SpeechSynthesisUtterance(voice);
+                                    window.speechSynthesis.speak(msg);
+                                })
+    
             })
             .fail(function() {
                 result.status = "fail";
@@ -76,8 +106,10 @@
             .always(function() {
                 callback(result);
             });
-    }
+         
 
+    }
+    
     function requestDefinition(searchText) {
         searchText = (searchText || "").toString().trim();
 
