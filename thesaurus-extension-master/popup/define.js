@@ -3,6 +3,7 @@
 
     var recentSearch;
     var queryPrefix = "https://www.google.com/search?q=define+";
+    //set global variable
     var textV = "";
     /* FIXME: this file has duplicate functions:
     * e.g. formatResponse, getDefinition
@@ -19,13 +20,17 @@
             resultHtml += result.pronounciation;
            
         }
+        
+        //Add a microphone beside the text
         resultHtml +=
             '<span class="fa fa-microphone" id="text_speech" aria-hidden="true" style="font-size:20px;margin-left:10px"></span><a id="closeBtnEPD" style="float:right;padding:2px 5px;">X</a><br/><br/>';
-       
+        
+        //success
         if(result.status == "success")
         {
             definitions = "<div style='box-sizing: border-box;padding: 0 10px 0 10px;  line-height: 2.0'>" + result.definitions +  "</div>" +"<br />" 
         }
+        //if the word not found
         else
         {
            definitions = "<div style='box-sizing: border-box;padding: 0 10px 0 10px;  line-height: 2.0'>No Results</div>";
@@ -43,18 +48,18 @@
      
          
        
-        
-       
+
          
-        
         
         return resultHtml;
     }
     
+    //set a variable
     function setVoice(text){
         textV = text;
     }
     
+    //Get the value from the variable
     function getVoice(){
         return textV;
     }
@@ -104,6 +109,7 @@
                     }
                     result.status = "success";
                     result.definitions = definition;
+                    //pass result into a function
                     setVoice(name);
                 }       
            
@@ -115,11 +121,14 @@
                 
             })
             .always(function() {
-                callback(result);
+                callback(result); 
             });
+            //set onclick function on microphone 
              $(document).on('click','#text_speech',function(){
-//                                                alert(getVoice());
+//                                               alert(getVoice());
+                                                //set variable to get definition    
                                                 var voice = getVoice();
+                                                //pass the results into a JavaScript speech synthesis API
                                                 var msg = new SpeechSynthesisUtterance(voice);
                                                 window.speechSynthesis.speak(msg);
                                         }) 
@@ -131,6 +140,7 @@
     function requestDefinition(searchText) {
         searchText = (searchText || "").toString().trim();
         
+        //if empty input, return false
         if(searchText == "")
         {
             return false;
@@ -140,7 +150,7 @@
         if (/\s+/.test(searchText)) {
             return;
         }
-
+        
         localStorage.setItem("recentSearchText", searchText);
         getDefinition(searchText, updateDom);
     }
@@ -163,7 +173,6 @@
         .getElementById("submitButton")
         .addEventListener("click", function() {
             requestDefinition($("#query").val());
-            
     
         });
 
