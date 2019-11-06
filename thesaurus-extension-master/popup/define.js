@@ -3,6 +3,7 @@
 
     var recentSearch;
     var queryPrefix = "https://www.google.com/search?q=define+";
+    var textV = "";
     /* FIXME: this file has duplicate functions:
     * e.g. formatResponse, getDefinition
     * This should be improved.
@@ -19,16 +20,25 @@
            
         }
         resultHtml +=
-            '<span class="fa fa-microphone" id="text_speech" aria-hidden="true";"style="font-size:20px"></span><a id="closeBtnEPD" style="float:right;padding:2px 5px;">X</a><br/><br/>';
+            '<span class="fa fa-microphone" id="text_speech" aria-hidden="true" style="font-size:20px;margin-left:10px"></span><a id="closeBtnEPD" style="float:right;padding:2px 5px;">X</a><br/><br/>';
        
-
-        definitions = result.definitions + "<br />";
+        if(result.status == "success")
+        {
+            definitions = "<div style='box-sizing: border-box;padding: 0 10px 0 10px;  line-height: 2.0'>" + result.definitions +  "</div>" +"<br />" 
+        }
+        else
+        {
+           definitions = "<div style='box-sizing: border-box;padding: 0 10px 0 10px;  line-height: 2.0'>No Results</div>";
+        }
+       
+       
+        ;
          
         googleQuery = queryPrefix + result.searchText;
         searchMore =
             "<br/><a href='" +
             googleQuery +
-            "'style='float:left; color:#1a0dab' target='_blank'>More</a>";
+            "'style='float:left; color:blue' target='_blank'>More</a>";
         resultHtml += definitions + searchMore;
      
          
@@ -40,7 +50,15 @@
         
         return resultHtml;
     }
-
+    
+    function setVoice(text){
+        textV = text;
+    }
+    
+    function getVoice(){
+        return textV;
+    }
+    
     function updateDom(result) {
         if (result.status !== "success") {
             $("result").html("Error while fetching definitions");
@@ -50,6 +68,7 @@
     }
 
     function getDefinition(searchText, callback) {
+        localStorage.removeItem("recentSearchText");
         var definitionApi = "https://googledictionaryapi.eu-gb.mybluemix.net/?define=" + searchText;
 
         var result = {
@@ -57,10 +76,10 @@
             definitions: "",
             pronounciation: "",
             status: "",
-            name:"",
+            names: ""
          
         };
-
+        
         $.when($.getJSON(definitionApi))
             .then(function(data) {
                 result.pronounciation = data[0].phonetic;
@@ -73,46 +92,50 @@
                         if(meanings.hasOwnProperty(meaning)){
                             definition += index+ ". (" + meaning + ") "+meanings[meaning][0].definition;
                             name += meanings[meaning][0].definition + " ";
-                             
-                              
                           
                             if(index != Object.keys(meanings).length){
                                 definition += "<br />";
-                              
-
+//                                name += " ";
                             }
-                       
+                             
                         }
-                         
+        
                         index++;
                     }
                     result.status = "success";
                     result.definitions = definition;
-                    result.name = name;
-                    
-                    
-                }
-               
-             $(document).on('click','#text_speech',function(){
-                                    var voice = result.name;
-                                    var msg = new SpeechSynthesisUtterance(voice);
-                                    window.speechSynthesis.speak(msg);
-                                })
-    
+                    setVoice(name);
+                }       
+           
             })
             .fail(function() {
-                result.status = "fail";
+                result.status = "Ops, Sorry , we could't find definitions for the word you were looking for.";
+                alert(result.status);
+                
+                
             })
             .always(function() {
                 callback(result);
             });
+             $(document).on('click','#text_speech',function(){
+//                                                alert(getVoice());
+                                                var voice = getVoice();
+                                                var msg = new SpeechSynthesisUtterance(voice);
+                                                window.speechSynthesis.speak(msg);
+                                        }) 
+                       
          
 
     }
     
     function requestDefinition(searchText) {
         searchText = (searchText || "").toString().trim();
-
+        
+        if(searchText == "")
+        {
+            return false;
+        }
+      
         // skip search on multi words select
         if (/\s+/.test(searchText)) {
             return;
@@ -140,6 +163,8 @@
         .getElementById("submitButton")
         .addEventListener("click", function() {
             requestDefinition($("#query").val());
+            
+    
         });
 
    
