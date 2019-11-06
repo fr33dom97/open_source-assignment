@@ -93,7 +93,7 @@
                     
                 }
                
-              $(document).on('click','#text_speech',function(){
+             $(document).on('click','#text_speech',function(){
                                     var voice = result.name;
                                     var msg = new SpeechSynthesisUtterance(voice);
                                     window.speechSynthesis.speak(msg);
@@ -142,21 +142,8 @@
             requestDefinition($("#query").val());
         });
 
-    // double click listener for recursive search
-    $(document).dblclick(function() {
-        var selectedText;
-
-        if (window.getSelection) {
-            selectedText = window.getSelection();
-        } else if (document.getSelection) {
-            selectedText = document.getSelection();
-        } else if (document.selection) {
-            selectedText = document.selection.createRange().text;
-        }
-
-        requestDefinition(selectedText);
-    });
-
+   
+ 
     // load recent search in init
     recentSearch = localStorage.getItem("recentSearchText");
     if (recentSearch) {
