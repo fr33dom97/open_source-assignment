@@ -20,7 +20,7 @@
             resultHtml += result.pronounciation;
            
         }
-        
+        //Daniel Section
         //Add a microphone beside the text
         resultHtml +=
             '<span class="fa fa-microphone" id="text_speech" aria-hidden="true" style="font-size:20px;margin-left:10px"></span><a id="closeBtnEPD" style="float:right;padding:2px 5px;">X</a><br/><br/>';
@@ -38,7 +38,7 @@
        
        
         ;
-         
+         // end of Daniel Section
         googleQuery = queryPrefix + result.searchText;
         searchMore =
             "<br/><a href='" +
